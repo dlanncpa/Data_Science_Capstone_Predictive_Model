@@ -22,9 +22,9 @@ twitter_data<-readLines("final/en_US/en_US.twitter.txt", encoding = "UTF-8", ski
 
 ```{r}
 set.seed(3878)
-dataSample<-c(sample(blogs_data, size = length(blogs_data)*0.1),
-              sample(news_data, size = length(news_data)*0.1),
-              sample(twitter_data, size = length(twitter_data)*0.1))
+dataSample<-c(sample(blogs_data, size = length(blogs_data)),
+              sample(news_data, size = length(news_data)),
+              sample(twitter_data, size = length(twitter_data)))
 ```
 
 ##Clean the Data
@@ -45,12 +45,12 @@ dataTokens<-tokens_tolower(dataTokens)
 ```{r}
 trigram<-tokens_ngrams(dataTokens, n = 3)
 trigramMat<-dfm(trigram, verbose = FALSE)
-trigramSort<-topfeatures(trigramMat, 15)
-trigramDF<-data.frame(words = names(trigramSort), freq = trigramSort)
+#trigramSort<-topfeatures(trigramMat, 15)
+#trigramDF<-data.frame(words = names(trigramSort), freq = trigramSort)
 ```
 
 ##1. The guy in front of me just bought a pound of bacon, a bouquet, and a case of
 
 ```{r}
-head(trigramDF[grep("^case of", trigramDF[, 1]),], 10)
+dfm_select(trigramMat, pattern = phrase("^case of"), selection = "keep", valuetype = "glob")
 ```

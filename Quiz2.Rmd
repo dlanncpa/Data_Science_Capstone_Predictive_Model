@@ -12,25 +12,19 @@ output:
 ```{r}
 suppressMessages(library(ggplot2))
 suppressMessages(library(quanteda))
+suppressMessages(library(ngram))
 
 blogs_data<-readLines("final/en_US/en_US.blogs.txt", encoding = "UTF-8", skipNul = TRUE)
 news_data<-readLines("final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = TRUE, warn = FALSE)
 twitter_data<-readLines("final/en_US/en_US.twitter.txt", encoding = "UTF-8", skipNul = TRUE)
-```
 
-##Sample the Data
-
-```{r}
-set.seed(3878)
-dataSample<-c(sample(blogs_data, size = length(blogs_data)),
-              sample(news_data, size = length(news_data)),
-              sample(twitter_data, size = length(twitter_data)))
+dat<-c(blogs_data, news_data, twitter_data)
 ```
 
 ##Clean the Data
 
 ```{r}
-dataTokens<-tokens(dataSample,
+dataTokens<-tokens(dat,
                    what = "fasterword",
                    remove_url = TRUE,
                    remove_punct = TRUE,
@@ -43,8 +37,9 @@ dataTokens<-tokens_tolower(dataTokens)
 ##Trigram
 
 ```{r}
-trigram<-tokens_ngrams(dataTokens, n = 3)
-trigramMat<-dfm(trigram, verbose = FALSE)
+trigram<-ngram(dataTokens, n = 3)
+df<-get.phrasetable(trigram)
+head(df)
 #trigramSort<-topfeatures(trigramMat, 15)
 #trigramDF<-data.frame(words = names(trigramSort), freq = trigramSort)
 ```
@@ -52,5 +47,5 @@ trigramMat<-dfm(trigram, verbose = FALSE)
 ##1. The guy in front of me just bought a pound of bacon, a bouquet, and a case of
 
 ```{r}
-dfm_select(trigramMat, pattern = phrase("^case of"), selection = "keep", valuetype = "glob")
+#dfm_select(trigramMat, pattern = phrase("^case of"), selection = "keep", valuetype = "glob")
 ```

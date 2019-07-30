@@ -17,27 +17,35 @@ suppressMessages(library(ngram))
 blogs_data<-readLines("final/en_US/en_US.blogs.txt", encoding = "UTF-8", skipNul = TRUE)
 news_data<-readLines("final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = TRUE, warn = FALSE)
 twitter_data<-readLines("final/en_US/en_US.twitter.txt", encoding = "UTF-8", skipNul = TRUE)
-
-dat<-c(blogs_data, news_data, twitter_data)
 ```
 
 ##Clean the Data
 
 ```{r}
-dataTokens<-tokens(dat,
-                   what = "fasterword",
-                   remove_url = TRUE,
-                   remove_punct = TRUE,
-                   remove_numbers = TRUE,
-                   remove_twitter = TRUE)
-dataTokens<-tokens_remove(dataTokens, pattern = stopwords("en"))
-dataTokens<-tokens_tolower(dataTokens)
+cleanBlogs<-preprocess(blogs_data,
+                   case = "lower",
+                   remove.numbers = TRUE,
+                   remove.punct = TRUE,
+                   fix.spacing = TRUE)
+
+cleanNews<-preprocess(news_data, 
+                     case = "lower",
+                     remove.numbers = TRUE,
+                     remove.punct = TRUE,
+                     fix.spacing = TRUE)
+
+cleanTwitter<-preprocess(twitter_data,
+                         case = "lower",
+                         remove.numbers = TRUE,
+                         remove.punct = TRUE,
+                         fix.spacing = TRUE)
 ```
 
 ##Trigram
 
 ```{r}
-trigram<-ngram(dataTokens, n = 3)
+cleanData<-concatenate(cleanBlogs, cleanNews, cleanTwitter)
+trigram<-ngram(cleanData, n = 3)
 df<-get.phrasetable(trigram)
 head(df)
 #trigramSort<-topfeatures(trigramMat, 15)

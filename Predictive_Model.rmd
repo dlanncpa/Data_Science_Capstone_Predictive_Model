@@ -1,0 +1,202 @@
+---
+title: "Predictive_Model"
+author: "Dustin Lanning"
+date: "July 21, 2019"
+output: 
+  html_document: 
+    fig_caption: yes
+    keep_md: yes
+---
+
+##Introduction
+
+A large corpus of text will be used to explore Natural Language Processing (NLP). This report addresses cleaning the data in the corpus and exploratory data analysis.
+
+##Load the Data
+
+The following libraries will be used to clean and explore the corpus.
+
+```{r}
+suppressMessages(library(data.table))
+suppressMessages(library(stringi))
+suppressMessages(library(ggplot2))
+suppressMessages(library(quanteda))
+```
+
+The corpa were collected from publicly available sources by a webcrawler. The data is stored in the following text files:
+
+* en_US.blogs.txt
+* en_US.news.txt
+* en_US.twitter.txt
+
+```{r}
+blogs_data<-readLines("final/en_US/en_US.blogs.txt", encoding = "UTF-8", skipNul = TRUE)
+news_data<-readLines("final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = TRUE, warn = FALSE)
+twitter_data<-readLines("final/en_US/en_US.twitter.txt", encoding = "UTF-8", skipNul = TRUE)
+```
+
+##Preliminary Aspects of the Data
+
+The following aspects of the data will help us understand the data with which we are working.
+
+```{r}
+data.frame("TextDocument" = c("Blogs", "News", "Twitter"),
+           "Lines" = c(length(blogs_data), length(news_data), length(twitter_data)),
+           "Words" = c(stri_stats_latex(blogs_data)[4], stri_stats_latex(news_data)[4],
+                       stri_stats_latex(twitter_data)[4]),
+           "MaxWords" = c(max(lengths(strsplit(blogs_data, " "))), max(lengths(strsplit(news_data, " "))),
+                          max(lengths(strsplit(twitter_data, " ")))),
+           "AverageWords" = c(mean(lengths(strsplit(blogs_data, " "))),
+                              mean(lengths(strsplit(news_data, " "))),
+                              mean(lengths(strsplit(twitter_data, " ")))),
+           "Characters" = c(sum(nchar(blogs_data)), sum(nchar(news_data)), sum(nchar(twitter_data))),
+           "MaxCharacters" = c(max(nchar(blogs_data)), max(nchar(news_data)), max(nchar(twitter_data))),
+           "AverageChar" = c(mean(nchar(blogs_data)), mean(nchar(news_data)),
+                             mean(nchar(twitter_data)))
+           )
+```
+
+##Process the Data
+
+###Sample the Data
+
+Due to the size of the files, we will sample 1% of the lines from each file.
+
+```{r}
+set.seed(3878)
+blogs_data<-sample(blogs_data, size = length(blogs_data) * 0.1)
+news_data<-sample(news_data, size = length(news_data) * 0.1)
+twitter_data<-sample(twitter_data, size = length(twitter_data) * 0.1)
+
+data.frame("TextDocument" = c("Blogs", "News", "Twitter"),
+           "Lines" = c(length(blogs_data), length(news_data), length(twitter_data)),
+           "Words" = c(stri_stats_latex(blogs_data)[4], stri_stats_latex(news_data)[4],
+                       stri_stats_latex(twitter_data)[4]),
+           "MaxWords" = c(max(lengths(strsplit(blogs_data, " "))), max(lengths(strsplit(news_data, " "))),
+                          max(lengths(strsplit(twitter_data, " ")))),
+           "AverageWords" = c(mean(lengths(strsplit(blogs_data, " "))),
+                              mean(lengths(strsplit(news_data, " "))),
+                              mean(lengths(strsplit(twitter_data, " ")))),
+           "Characters" = c(sum(nchar(blogs_data)), sum(nchar(news_data)), sum(nchar(twitter_data))),
+           "MaxCharacters" = c(max(nchar(blogs_data)), max(nchar(news_data)), max(nchar(twitter_data))),
+           "AverageChar" = c(mean(nchar(blogs_data)), mean(nchar(news_data)),
+                             mean(nchar(twitter_data)))
+           )
+```
+
+Next we combine the samples into a single corpus.
+
+```{r}
+total_data<-c(blogs_data, news_data, twitter_data)
+corp_data<-corpus(total_data)
+```
+
+###Clean the Data
+
+Cleaning the data will include removing URL's, special characters, punctuations, numbers, stopwords, and converting the text to lower case.
+
+```{r}
+dataTokens<-tokens(corp_data,
+                   what = "word",
+                   remove_url = TRUE,
+                   remove_punct = TRUE,
+                   remove_numbers = TRUE,
+                   remove_twitter = TRUE)
+dataTokens<-tokens_remove(dataTokens, pattern = stopwords("en"))
+dataTokens<-tokens_tolower(dataTokens)
+```
+
+Stem the data.
+
+```{r}
+stemWords<-tokens_wordstem(dataTokens, language = "en")
+```
+
+##N-Grams
+
+We will look for the frequency of single words, unigrams, the frequency of pairs of words, bigrams, and the frequency of three word groups, trigrams.
+
+```{r}
+bi_gram<-tokens_ngrams(stemWords, n = 2)
+tri_gram<-tokens_ngrams(stemWords, n = 3)
+
+unigramMat<-dfm(stemWords)
+bigramMat<-dfm(bi_gram)
+trigramMat<-dfm(tri_gram)
+
+unigramMat<-dfm_trim(unigramMat, 3)
+bigramMat<-dfm_trim(bigramMat, 3)
+trigramMat<-dfm_trim(trigramMat, 3)
+```
+
+###Unigram Plot
+
+```{r}
+unigramTop<-topfeatures(unigramMat, 15)
+unigramDF<-data.frame(words = names(unigramTop), freq = unigramTop)
+
+ggplot(data = unigramDF, aes(x = words, y = freq)) +
+    geom_bar(stat = "identity", fill = rainbow(n = length(unigramDF[, 1]))) +
+    ggtitle("Frequent Unigrams") +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    xlab("Unigrams") +
+    ylab("Frequency")
+```
+
+###Bigram Plot
+
+```{r}
+bigramTop<-topfeatures(bigramMat, 15)
+bigramDF<-data.frame(words = names(bigramTop), freq = bigramTop)
+
+ggplot(data = bigramDF, aes(x = words, y = freq)) +
+    coord_flip() +
+    geom_bar(stat = "identity", fill = rainbow(n = length(bigramDF[, 1]))) +
+    ggtitle("Frequent Bigrams") +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    xlab("Bigrams") +
+    ylab("Frequency")
+``` 
+
+###Trigram Plot
+
+```{r}
+trigramTop<-topfeatures(trigramMat, 15)
+trigramDF<-data.frame(words = names(trigramTop), freq = trigramTop)
+
+ggplot(data = trigramDF, aes(x = words, y = freq)) +
+    coord_flip() +
+    geom_bar(stat = "identity", fill = rainbow(n = length(trigramDF[, 1]))) +
+    ggtitle("Frequent Trigrams") +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    xlab("Trigrams") +
+    ylab("Frequency")
+```
+
+##Text Prediction
+
+```{r}
+allNgrams<-c(unigramMat, bigramMat, trigramMat)
+
+Trim<-function(x){
+    #https://stackoverflow.com/questions/2261079/how-to-trim-leading-and-trailing-whitespace
+    gsub("(^[[:space:]]+|[[:space:]]+$)", "", x)
+}
+
+find_next_word<-function(textInput){
+    if(nchar(Trim(textInput))==0)
+        return("")
+    
+    matches<-c()
+    textInput<-paste0(Trim(textInput), " ")
+    for (x in allNgrams) {
+        if(grepl(paste0('\\>', textInput), x)){
+            matches<-c(matches, x)
+        }
+    }
+    if(is.null(matches))
+        return("The", "What", "When")
+    
+    
+}
+```

@@ -16,7 +16,8 @@ A large corpus of text will be used to explore Natural Language Processing (NLP)
 
 The following libraries will be used to clean and explore the corpus.
 
-```{r}
+
+```r
 suppressMessages(library(stringi))
 suppressMessages(library(dplyr))
 suppressMessages(library(stringr))
@@ -31,7 +32,8 @@ The corpa were collected from publicly available sources by a webcrawler. The da
 * en_US.news.txt
 * en_US.twitter.txt
 
-```{r}
+
+```r
 blogs_data<-readLines("final/en_US/en_US.blogs.txt", encoding = "UTF-8", skipNul = TRUE)
 news_data<-readLines("final/en_US/en_US.news.txt", encoding = "UTF-8", skipNul = TRUE, warn = FALSE)
 twitter_data<-readLines("final/en_US/en_US.twitter.txt", encoding = "UTF-8", skipNul = TRUE)
@@ -41,7 +43,8 @@ twitter_data<-readLines("final/en_US/en_US.twitter.txt", encoding = "UTF-8", ski
 
 The following aspects of the data will help us understand the data with which we are working.
 
-```{r}
+
+```r
 data.frame("TextDocument" = c("Blogs", "News", "Twitter"),
            "Lines" = c(length(blogs_data), length(news_data), length(twitter_data)),
            "Words" = c(stri_stats_latex(blogs_data)[4], stri_stats_latex(news_data)[4],
@@ -58,13 +61,25 @@ data.frame("TextDocument" = c("Blogs", "News", "Twitter"),
            )
 ```
 
+```
+##   TextDocument   Lines    Words MaxWords AverageWords Characters
+## 1        Blogs  899288 37570839     6630     41.51521  206824505
+## 2         News   77259  2651432     1031     34.22215   15639408
+## 3      Twitter 2360148 30451170       47     12.86936  162096241
+##   MaxCharacters AverageChar
+## 1         40833   229.98695
+## 2          5760   202.42830
+## 3           140    68.68054
+```
+
 ##Process the Data
 
 ###Sample the Data
 
 Due to the size of the files, we will sample 1% of the lines from each file.
 
-```{r}
+
+```r
 set.seed(3878)
 blogs_data<-sample(blogs_data, size = length(blogs_data) * 0.1)
 news_data<-sample(news_data, size = length(news_data) * 0.1)
@@ -86,9 +101,21 @@ data.frame("TextDocument" = c("Blogs", "News", "Twitter"),
            )
 ```
 
+```
+##   TextDocument  Lines   Words MaxWords AverageWords Characters
+## 1        Blogs  89928 3771618     6170     41.66033   20758681
+## 2         News   7725  265321      319     34.28168    1564553
+## 3      Twitter 236014 3047409       40     12.87878   16217927
+##   MaxCharacters AverageChar
+## 1         37191   230.83668
+## 2          1612   202.53113
+## 3           140    68.71595
+```
+
 Next we combine the samples into a single corpus.
 
-```{r}
+
+```r
 total_data<-c(blogs_data, news_data, twitter_data)
 corp_data<-corpus(total_data)
 ```
@@ -97,7 +124,8 @@ corp_data<-corpus(total_data)
 
 Cleaning the data will include removing URL's, special characters, punctuations, numbers, stopwords, and converting the text to lower case.
 
-```{r}
+
+```r
 dataTokens<-tokens(corp_data,
                    what = "word",
                    remove_url = TRUE,
@@ -110,7 +138,8 @@ dataTokens<-tokens_tolower(dataTokens)
 
 Stem the data.
 
-```{r}
+
+```r
 stemWords<-tokens_wordstem(dataTokens, language = "en")
 ```
 
@@ -118,7 +147,8 @@ stemWords<-tokens_wordstem(dataTokens, language = "en")
 
 We will look for the frequency of single words, unigrams, the frequency of pairs of words, bigrams, and the frequency of three word groups, trigrams.
 
-```{r}
+
+```r
 bi_gram<-tokens_ngrams(stemWords, n = 2)
 tri_gram<-tokens_ngrams(stemWords, n = 3)
 
@@ -133,7 +163,8 @@ trigramMat<-dfm_trim(trigramMat, 3)
 
 ###Unigram Plot
 
-```{r}
+
+```r
 unigramTop<-topfeatures(unigramMat, 15)
 unigramDF<-data.frame(words = names(unigramTop), freq = unigramTop)
 
@@ -145,9 +176,12 @@ ggplot(data = unigramDF, aes(x = words, y = freq)) +
     ylab("Frequency")
 ```
 
+![](Predictive_Model_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
 ###Bigram Plot
 
-```{r}
+
+```r
 bigramTop<-topfeatures(bigramMat, 15)
 bigramDF<-data.frame(words = names(bigramTop), freq = bigramTop)
 
@@ -158,11 +192,14 @@ ggplot(data = bigramDF, aes(x = words, y = freq)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     xlab("Bigrams") +
     ylab("Frequency")
-``` 
+```
+
+![](Predictive_Model_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 ###Trigram Plot
 
-```{r}
+
+```r
 trigramTop<-topfeatures(trigramMat, 15)
 trigramDF<-data.frame(words = names(trigramTop), freq = trigramTop)
 
@@ -175,9 +212,12 @@ ggplot(data = trigramDF, aes(x = words, y = freq)) +
     ylab("Frequency")
 ```
 
+![](Predictive_Model_files/figure-html/unnamed-chunk-11-1.png)<!-- -->
+
 ##Prepare the Dataframe for Prediction
 
-```{r}
+
+```r
 trigramTop<-topfeatures(trigramMat, n = 20000)
 trigramDF<-data.frame(words = names(trigramTop), freq = trigramTop)
 trigramDF %>% mutate_if(is.factor, as.character) -> trigramDF
@@ -190,7 +230,8 @@ trigramDF<-trigramDF[c("w1", "w2", "w3", "freq")]
 
 ##Text Prediction
 
-```{r}
+
+```r
 find_next_word<-function(textInput){
     inputAdj<-removePunctuation(tolower(textInput))
     inputAdj<-removeWords(inputAdj, stopwords("english"))
@@ -210,6 +251,13 @@ find_next_word<-function(textInput){
 
 ##Test the Prediction
 
-```{r}
+
+```r
 find_next_word("I look forward to")
+```
+
+```
+## [1] "see"
+## [1] "tweet"
+## [1] "hear"
 ```

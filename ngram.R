@@ -82,6 +82,7 @@ trigramDF<-data.frame(words = names(trigramTop), freq = trigramTop)
 trigramDF %>% mutate_if(is.factor, as.character) -> trigramDF
 trigramDF$w1<-word(trigramDF$words, 1, sep = fixed("_"))
 trigramDF$w2<-word(trigramDF$words, 2, sep = fixed("_"))
+trigramDF$w3<-word(trigramDF$words, 3, sep = fixed("_"))
 trigramDF<-subset(trigramDF, select = -c(words))
 trigramDF<-trigramDF[c("w1", "w2", "freq")]
 saveRDS(trigramDF, file = "data/trigram.rds")
@@ -91,6 +92,8 @@ quadgramDF<-data.frame(words = names(quadgramTop), freq = quadgramTop)
 quadgramDF %>% mutate_if(is.factor, as.character) -> quadgramDF
 quadgramDF$w1<-word(quadgramDF$words, 1, sep = fixed("_"))
 quadgramDF$w2<-word(quadgramDF$words, 2, sep = fixed("_"))
+quadgramDF$w3<-word(quadgramDF$words, 3, sep = fixed("_"))
+quadgramDF$w4<-word(quadgramDF$words, 4, sep = fixed("_"))
 quadgramDF<-subset(quadgramDF, select = -c(words))
 quadgramDF<-quadgramDF[c("w1", "w2", "freq")]
 saveRDS(quadgramDF, file = "data/quadgram.rds")
@@ -100,6 +103,9 @@ quintgramDF<-data.frame(words = names(quintgramTop), freq = quintgramTop)
 quintgramDF %>% mutate_if(is.factor, as.character) -> quintgramDF
 quintgramDF$w1<-word(quintgramDF$words, 1, sep = fixed("_"))
 quintgramDF$w2<-word(quintgramDF$words, 2, sep = fixed("_"))
+quintgramDF$w3<-word(quintgramDF$words, 3, sep = fixed("_"))
+quintgramDF$w4<-word(quintgramDF$words, 4, sep = fixed("_"))
+quintgramDF$w5<-word(quintgramDF$words, 5, sep = fixed("_"))
 quintgramDF<-subset(quintgramDF, select = -c(words))
 quintgramDF<-quintgramDF[c("w1", "w2", "freq")]
 saveRDS(quintgramDF, file = "data/quintgram.rds")

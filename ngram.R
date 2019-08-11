@@ -61,12 +61,10 @@ quintgramMat<-dfm_trim(quintgramMat, 3)
 #Create the various ngram dataframes. Save the seperate dataframes as seperate files to load
 #into the model.
 
-dir.create("data")
-
 unigramTop<-topfeatures(unigramMat, n = 20000)
 unigramDF<-data.frame(w1 = names(unigramTop), freq = unigramTop)
 unigramDF %>% mutate_if(is.factor, as.character) -> unigramDF
-saveRDS(unigramDF, file = "data/unigram.rds")
+saveRDS(unigramDF, file = "shiny/find_next_word/data/unigram.rds")
 
 bigramTop<-topfeatures(bigramMat, n = 20000)
 bigramDF<-data.frame(words = names(bigramTop), freq = bigramTop)
@@ -75,7 +73,7 @@ bigramDF$w1<-word(bigramDF$words, 1, sep = fixed("_"))
 bigramDF$w2<-word(bigramDF$words, 2, sep = fixed("_"))
 bigramDF<-subset(bigramDF, select = -c(words))
 bigramDF<-bigramDF[c("w1", "w2", "freq")]
-saveRDS(bigramDF, file = "data/bigram.rds")
+saveRDS(bigramDF, file = "shiny/find_next_word/data/bigram.rds")
 
 trigramTop<-topfeatures(trigramMat, n = 20000)
 trigramDF<-data.frame(words = names(trigramTop), freq = trigramTop)
@@ -84,8 +82,8 @@ trigramDF$w1<-word(trigramDF$words, 1, sep = fixed("_"))
 trigramDF$w2<-word(trigramDF$words, 2, sep = fixed("_"))
 trigramDF$w3<-word(trigramDF$words, 3, sep = fixed("_"))
 trigramDF<-subset(trigramDF, select = -c(words))
-trigramDF<-trigramDF[c("w1", "w2", "freq")]
-saveRDS(trigramDF, file = "data/trigram.rds")
+trigramDF<-trigramDF[c("w1", "w2", "w3", "freq")]
+saveRDS(trigramDF, file = "shiny/find_next_word/data/trigram.rds")
 
 quadgramTop<-topfeatures(quadgramMat, n = 20000)
 quadgramDF<-data.frame(words = names(quadgramTop), freq = quadgramTop)
@@ -95,8 +93,8 @@ quadgramDF$w2<-word(quadgramDF$words, 2, sep = fixed("_"))
 quadgramDF$w3<-word(quadgramDF$words, 3, sep = fixed("_"))
 quadgramDF$w4<-word(quadgramDF$words, 4, sep = fixed("_"))
 quadgramDF<-subset(quadgramDF, select = -c(words))
-quadgramDF<-quadgramDF[c("w1", "w2", "freq")]
-saveRDS(quadgramDF, file = "data/quadgram.rds")
+quadgramDF<-quadgramDF[c("w1", "w2", "w3", "w4", "freq")]
+saveRDS(quadgramDF, file = "shiny/find_next_word/data/quadgram.rds")
 
 quintgramTop<-topfeatures(quintgramMat, n = 20000)
 quintgramDF<-data.frame(words = names(quintgramTop), freq = quintgramTop)
@@ -107,5 +105,5 @@ quintgramDF$w3<-word(quintgramDF$words, 3, sep = fixed("_"))
 quintgramDF$w4<-word(quintgramDF$words, 4, sep = fixed("_"))
 quintgramDF$w5<-word(quintgramDF$words, 5, sep = fixed("_"))
 quintgramDF<-subset(quintgramDF, select = -c(words))
-quintgramDF<-quintgramDF[c("w1", "w2", "freq")]
-saveRDS(quintgramDF, file = "data/quintgram.rds")
+quintgramDF<-quintgramDF[c("w1", "w2", "w3", "w4", "w5", "freq")]
+saveRDS(quintgramDF, file = "shiny/find_next_word/data/quintgram.rds")

@@ -1,6 +1,6 @@
 library(shiny)
 
-source("find_next_word.R")
+source("find_next_word.r")
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output, session) {

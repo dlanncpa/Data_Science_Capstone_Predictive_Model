@@ -27,6 +27,16 @@ corp_data<-corpus(total_data)
 
 #Tokenize, clean, and stem the data.
 
+unigramTokens<-tokens(corp_data,
+                      what = "word",
+                      remove_url = TRUE,
+                      remove_punct = TRUE,
+                      remove_numbers = TRUE,
+                      remove_twitter = TRUE)
+unigramTokens<-tokens_tolower(unigramTokens)
+
+unigramStems<-tokens_wordstem(unigramTokens, language = "en")
+
 dataTokens<-tokens(corp_data,
                    what = "word",
                    remove_url = TRUE,
@@ -46,7 +56,7 @@ tri_gram<-tokens_ngrams(stemWords, n = 3)
 quad_gram<-tokens_ngrams(stemWords, n = 4)
 quint_gram<-tokens_ngrams(stemWords, n = 5)
 
-unigramMat<-dfm(stemWords)
+unigramMat<-dfm(unigramStems)
 bigramMat<-dfm(bi_gram)
 trigramMat<-dfm(tri_gram)
 quadgramMat<-dfm(quad_gram)

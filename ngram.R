@@ -61,12 +61,12 @@ quintgramMat<-dfm_trim(quintgramMat, 3)
 #Create the various ngram dataframes. Save the seperate dataframes as seperate files to load
 #into the model.
 
-unigramTop<-topfeatures(unigramMat, n = 20000)
+unigramTop<-topfeatures(unigramMat, n = 40000)
 unigramDF<-data.frame(w1 = names(unigramTop), freq = unigramTop)
 unigramDF %>% mutate_if(is.factor, as.character) -> unigramDF
 saveRDS(unigramDF, file = "shiny/find_next_word/data/unigram.rds")
 
-bigramTop<-topfeatures(bigramMat, n = 20000)
+bigramTop<-topfeatures(bigramMat, n = 40000)
 bigramDF<-data.frame(words = names(bigramTop), freq = bigramTop)
 bigramDF %>% mutate_if(is.factor, as.character) -> bigramDF
 bigramDF$w1<-word(bigramDF$words, 1, sep = fixed("_"))
@@ -75,7 +75,7 @@ bigramDF<-subset(bigramDF, select = -c(words))
 bigramDF<-bigramDF[c("w1", "w2", "freq")]
 saveRDS(bigramDF, file = "shiny/find_next_word/data/bigram.rds")
 
-trigramTop<-topfeatures(trigramMat, n = 20000)
+trigramTop<-topfeatures(trigramMat, n = 40000)
 trigramDF<-data.frame(words = names(trigramTop), freq = trigramTop)
 trigramDF %>% mutate_if(is.factor, as.character) -> trigramDF
 trigramDF$w1<-word(trigramDF$words, 1, sep = fixed("_"))
@@ -85,7 +85,7 @@ trigramDF<-subset(trigramDF, select = -c(words))
 trigramDF<-trigramDF[c("w1", "w2", "w3", "freq")]
 saveRDS(trigramDF, file = "shiny/find_next_word/data/trigram.rds")
 
-quadgramTop<-topfeatures(quadgramMat, n = 20000)
+quadgramTop<-topfeatures(quadgramMat, n = 40000)
 quadgramDF<-data.frame(words = names(quadgramTop), freq = quadgramTop)
 quadgramDF %>% mutate_if(is.factor, as.character) -> quadgramDF
 quadgramDF$w1<-word(quadgramDF$words, 1, sep = fixed("_"))
@@ -96,7 +96,7 @@ quadgramDF<-subset(quadgramDF, select = -c(words))
 quadgramDF<-quadgramDF[c("w1", "w2", "w3", "w4", "freq")]
 saveRDS(quadgramDF, file = "shiny/find_next_word/data/quadgram.rds")
 
-quintgramTop<-topfeatures(quintgramMat, n = 20000)
+quintgramTop<-topfeatures(quintgramMat, n = 40000)
 quintgramDF<-data.frame(words = names(quintgramTop), freq = quintgramTop)
 quintgramDF %>% mutate_if(is.factor, as.character) -> quintgramDF
 quintgramDF$w1<-word(quintgramDF$words, 1, sep = fixed("_"))

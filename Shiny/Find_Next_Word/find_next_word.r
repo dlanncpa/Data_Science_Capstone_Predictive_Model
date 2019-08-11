@@ -13,6 +13,7 @@ find_next_word<-function(x){
     inputAdj<-removePunctuation(tolower(as.character(x)))
     inputAdj<-removeWords(inputAdj, stopwords("english"))
     inputAdj<-strsplit(inputAdj, " ")[[1]]
+    inputAdj<-inputAdj[inputAdj != ""]
     
     if(length(inputAdj)>=4){
         inputAdj<-tail(inputAdj, 4)
@@ -48,10 +49,16 @@ find_next_word<-function(x){
                     a3<-tail(head(bigram[bigram$w1 == inputAdj[1], 2], 3), n = 1)
                     return(c(a1, a2, a3))
                 }
+                    else if(length(find_next_word)==0){
+                        a1<-sample(unigram[, 1])
+                        a2<-sample(unigram[, 1])
+                        a3<-sample(unigram[, 1])
+                        return(c(a1, a2, a3))
+                    }
     else{
-        a1<-head(unigram[, 1], 1)
-        a2<-tail(head(unigram[, 1], 2), n = 1)
-        a3<-tail(head(unigram[, 1], 3), n = 1)
+        a1<-sample(unigram[, 1])
+        a2<-sample(unigram[, 1])
+        a3<-sample(unigram[, 1])
         return(c(a1, a2, a3))
     }
 }

@@ -1,0 +1,44 @@
+Next Word
+========================================================
+author: Dustin Lanning
+date: 2019-08-11
+autosize: true
+
+The Objective
+========================================================
+
+This is the final project of Coursera Data Science Specialization Capstone course. The course
+was taught by professors of the Johns Hopkins University with cooperation of Swiftkey. The goal
+of the project is to build a Shiny application that is able to predict the next word from a
+line of text.
+
+All text mining was and natural language processing was done with the usage of a variety of
+well known R packages.
+
+Cleaning and Modeling the Corpa
+========================================================
+
+After creating a data sample from the Swiftkey Corpa data, the sample was "cleaned". The cleaning
+consisted of converting the data to lower-case, removing punctuation, links, whitespace, numbers,
+and special characters. The sample was then tokenized into n-grams. N-grams are a continuous
+sequence of n items from a given sequence of text or speech.
+
+The n-grams were aggregated into data frames for one, two, three, four, and five n-grams. The
+data frames were used to predict the next word of text to be entered by a user of the app by
+matching the text entered to the data frames.
+
+User Interface
+========================================================
+
+The user interface was designed similar to using a text message application on a mobile device.
+The user begins typing text into a text box. Under the text box, there are three action buttons
+with potential next words. The user can continue to type or click one of the buttons. Once a
+button is clicked, the word from the box appends the end of the entered text and new words fill
+the action buttons.
+
+The App and Supporting Documentation
+========================================================
+
+The app is located at https://dlanncpa.shinyapps.io/Find_Next_Word/.
+
+The supporting documentation is located at https://github.com/dlanncpa/Data_Science_Capstone_Predictive_Model.

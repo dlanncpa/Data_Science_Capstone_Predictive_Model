@@ -1,0 +1,13 @@
+name: Find_Next_Word
+title: Find_Next_Word
+username:
+account: dlanncpa
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 1079996
+bundleId: 2309847
+url: https://dlanncpa.shinyapps.io/Find_Next_Word/
+when: 1565552431.26843
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Next_Word.md|Next_Word.Rpres|Next_Word-figure/unnamed-chunk-2-1.png
